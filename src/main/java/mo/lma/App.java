@@ -1,13 +1,11 @@
 package mo.lma;
 
-/**
- * Hello world!
- *
- */
-public class App 
-{
-    public static void main( String[] args )
-    {
-        System.out.println( "Hello World!" );
+
+import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+
+public class App {
+
+    public static void main(String[] args) {
+        MultiLayerConfiguration configuration = new MultiLayerConfiguration();
     }
 }

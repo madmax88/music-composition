@@ -31,5 +31,12 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+
+    <!-- This is the deeplearning4j dependency -->
+    <dependency>
+      <groupId>org.deeplearning4j</groupId>
+      <artifactId>deeplearning4j-core</artifactId>
+      <version>0.8.0</version>
+    </dependency>
   </dependencies>
 </project>
