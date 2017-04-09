@@ -1,5 +1,7 @@
 package mo.lma;
 
+import java.io.File;
+import java.io.FileFilter;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -19,6 +21,8 @@ import java.io.IOException;
 
 public class App {
 
+    static long maxLength = 1024;
+   
     public static void main(String[] args) throws IOException, InterruptedException {
         INDArray input = Nd4j.zeros(4, 2);
         INDArray labels = Nd4j.zeros(4, 2);
@@ -75,5 +79,27 @@ public class App {
 
         INDArray output = net.output(ds.getFeatureMatrix());
         System.out.println(output);
+    }
+    
+    /**
+     * Finds the maximum input file length and stores it in maxLength.
+     * @param directory 
+     */
+    private static void findMaxFinalLength(String directory)
+    {
+        File dir = new File(directory);
+        FileFilter getABCFiles = new FileFilter() {
+
+            public boolean accept(File pathname)
+            {
+                return pathname.getName().endsWith(".abc");
+            }
+        };
+        File[] songs = dir.listFiles(getABCFiles);
+        maxLength = 0;
+        for(File song : songs)
+        {
+            maxLength = (song.length() > maxLength) ? song.length() : maxLength;
+        }
     }
 }
