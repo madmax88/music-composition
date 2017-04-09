@@ -22,50 +22,25 @@ public class App {
     public static void main(String[] args) throws IOException, InterruptedException {
         INDArray input = Nd4j.zeros(4, 2);
         INDArray labels = Nd4j.zeros(4, 2);
-
-        // [0 0] -> [1 0]
-        input.putScalar(new int[] {0, 0}, 0);
-        input.putScalar(new int[] {0, 1}, 0);
-        labels.putScalar(new int[] {0, 0}, 1);
-        labels.putScalar(new int[] {0, 1}, 0);
-
-        // [1 0] -> [0 1]
-        input.putScalar(new int[] {1, 0}, 1);
-        input.putScalar(new int[] {1, 1}, 0);
-        labels.putScalar(new int[] {1, 0}, 0);
-        labels.putScalar(new int[] {1, 1}, 1);
-
-        // [0 1] -> [0 1]
-        input.putScalar(new int[] {2, 0}, 0);
-        input.putScalar(new int[] {2, 1}, 1);
-        labels.putScalar(new int[] {2, 0}, 0);
-        labels.putScalar(new int[] {2, 1}, 1);
-
-        // [1 1] -> [1 1]
-        input.putScalar(new int[] {3, 0}, 1);
-        input.putScalar(new int[] {3, 1}, 1);
-        labels.putScalar(new int[] {3, 0}, 1);
-        labels.putScalar(new int[] {3, 1}, 0);
-
         DataSet ds = new DataSet(input, labels);
 
         // define a network
-       MultiLayerConfiguration xorNetworkConf =
-               new NeuralNetConfiguration.Builder()
-               .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-               .updater(Updater.NESTEROVS).momentum(0.9)
-               .learningRate(0.1)
-               .iterations(1000)
-               .list(new DenseLayer.Builder()
-                               .nIn(2).nOut(2)
-                               .weightInit(WeightInit.DISTRIBUTION)
-                               .dist(new UniformDistribution(0, 1))
-                               .activation(Activation.SIGMOID).build(),
-                       new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                               .activation(Activation.SOFTMAX).nIn(2).nOut(2)
-                               .weightInit(WeightInit.DISTRIBUTION)
-                               .dist(new UniformDistribution(0, 1))
-                               .build())
+        MultiLayerConfiguration xorNetworkConf =
+                new NeuralNetConfiguration.Builder()
+                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+                .updater(Updater.NESTEROVS).momentum(0.9)
+                .learningRate(0.1)
+                .iterations(1000)
+                .list(new DenseLayer.Builder()
+                                   .nIn(2).nOut(2)
+                                   .weightInit(WeightInit.DISTRIBUTION)
+                                   .dist(new UniformDistribution(0, 1))
+                                   .activation(Activation.SIGMOID).build(),
+                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                                   .activation(Activation.SOFTMAX).nIn(2).nOut(2)
+                                   .weightInit(WeightInit.DISTRIBUTION)
+                                   .dist(new UniformDistribution(0, 1))
+                                   .build())
                .backprop(true).build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(xorNetworkConf);
