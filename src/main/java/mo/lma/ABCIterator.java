@@ -1,21 +1,20 @@
 package mo.lma;
 
-
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-/**
- * Created by madmax on 4/9/17.
- */
 public class ABCIterator implements DataSetIterator {
     private ArrayList<Integer>[] exampleDataSets;
     private HashMap<Character, Integer> characterMap;
@@ -61,40 +60,47 @@ public class ABCIterator implements DataSetIterator {
         return characterMap;
     }
 
+    // returns the next i examples from the dataset
     public DataSet next(int i) {
-        if (i < 0 || i > exampleDataSets.length)
+        if (i < 0 || i + currentDataSet >= exampleDataSets.length)
             throw new NoSuchElementException();
 
-        int batchSize = exampleDataSets[i].size();
+        // dataSets stores the number of files left to consume examples from
+        int dataSets = Math.min(i, exampleDataSets.length - currentDataSet);
 
-        INDArray inputs = Nd4j.create(new int[]{batchSize, characterMap.size(), exampleLength}, 'f');
-        INDArray labels = Nd4j.create(new int[]{batchSize, characterMap.size(), exampleLength}, 'f');
+        INDArray inputs = Nd4j.create(new int[]{dataSets, characterMap.size(), exampleLength}, 'f');
+        INDArray labels = Nd4j.create(new int[]{dataSets, characterMap.size(), exampleLength}, 'f');
 
-        for (int k = 0; k < batchSize; k++) {
+        for (int k = 0; k < dataSets; k++) {
 
             int c = 0;
+            int currIdx = exampleDataSets[k + currentDataSet].get(0);
             for (int j = 1; j < exampleLength; j++, c++) {
-
+                int nexIdx = exampleDataSets[k + currentDataSet].get(j);
+                inputs.putScalar(new int[] {k, currIdx, c}, 1.0);
+                labels.putScalar(new int[] {k, nexIdx, c}, 1.0);
+                currIdx = nexIdx;
             }
         }
 
-        return null;
+        currentDataSet += i;
+        return new DataSet(inputs, labels);
     }
 
     public int totalExamples() {
-        return 0;
+        return exampleDataSets.length;
     }
 
     public int inputColumns() {
-        return 0;
+        return characterMap.size();
     }
 
     public int totalOutcomes() {
-        return 0;
+        return characterMap.size();
     }
 
     public boolean resetSupported() {
-        return false;
+        return true;
     }
 
     public boolean asyncSupported() {
@@ -102,42 +108,42 @@ public class ABCIterator implements DataSetIterator {
     }
 
     public void reset() {
-
+        currentDataSet = 0;
     }
 
     public int batch() {
-        return 0;
+        return exampleDataSets.length;
     }
 
     public int cursor() {
-        return 0;
+        return currentDataSet;
     }
 
     public int numExamples() {
-        return 0;
+        return totalExamples();
     }
 
     public void setPreProcessor(DataSetPreProcessor dataSetPreProcessor) {
-
+        throw new UnsupportedOperationException();
     }
 
     public DataSetPreProcessor getPreProcessor() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public List<String> getLabels() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public boolean hasNext() {
-        return false;
+        return currentDataSet < exampleDataSets.length;
     }
 
     public DataSet next() {
-        return null;
+        return next(batch());
     }
 
     public void remove() {
-
+        throw new UnsupportedOperationException();
     }
 }
