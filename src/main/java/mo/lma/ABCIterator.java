@@ -29,6 +29,7 @@ public class ABCIterator implements DataSetIterator {
         currentDataSet = 0;
         charIdxNumber = 0;
         this.exampleLength = exampleLength;
+        characterMap = new HashMap<Character, Integer>();
 
         // create a new data set for each File in the training example
         for (int i = 0; i < exampleDataSets.length; i++) {
