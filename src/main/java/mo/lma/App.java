@@ -1,6 +1,5 @@
 package mo.lma;
 
-import org.apache.commons.math3.optimization.Weight;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
