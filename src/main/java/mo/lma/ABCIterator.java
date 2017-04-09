@@ -1,6 +1,5 @@
 package mo.lma;
 
-
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
@@ -13,9 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-/**
- * Created by madmax on 4/9/17.
- */
 public class ABCIterator implements DataSetIterator {
     private ArrayList<Integer>[] exampleDataSets;
     private HashMap<Character, Integer> characterMap;
@@ -69,7 +65,7 @@ public class ABCIterator implements DataSetIterator {
 
     // returns the next i examples from the dataset
     public DataSet next(int i) {
-        if (i < 0 || i + currentDataSet >= exampleDataSets.length)
+        if (i < 0 || i + currentDataSet > exampleDataSets.length)
             throw new NoSuchElementException();
 
         // dataSets stores the number of files left to consume examples from
