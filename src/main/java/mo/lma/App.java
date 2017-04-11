@@ -1,25 +1,21 @@
 package mo.lma;
 
-import java.io.File;
-import java.io.FileFilter;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
-import org.deeplearning4j.nn.conf.distribution.UniformDistribution;
-import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.GravesLSTM;
-import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
-import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -66,10 +62,27 @@ public class App {
         MultiLayerNetwork network = new MultiLayerNetwork(conf);
         network.init();
 
-        DataSet ds = it.next();
-        network.fit(ds);
+        CharacterSampler sampler = new CharacterSampler(it.getCharacterSet(), it.getCharacterIndicies(),
+                network);
 
-        System.out.println(ds.getFeatures());
+        for (int i = 0; i < 200; i++) {
+            System.out.println("Training epoch: " + i + ". ");
+
+            DataSet ds = it.next();
+            network.fit(ds);
+            it.reset();
+
+            System.out.println("Sampled output:\n" + sampler.sampleCharacters("X:1\n", 50));
+            System.out.println("------------------");
+        }
+
+        System.out.println(sampler.sampleCharacters("X:1\n", 50));
+
+        System.out.println("Enter location to save the model: ");
+        String savePath = scanner.nextLine();
+
+        File location = new File(savePath);
+        ModelSerializer.writeModel(network, location, true);
     }
     
     /**

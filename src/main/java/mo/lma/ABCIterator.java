@@ -13,10 +13,22 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public class ABCIterator implements DataSetIterator {
+    // stores the contents of each file
     private ArrayList<Integer>[] exampleDataSets;
+
+    // stores a map relating characters to an index to encode in a vector
     private HashMap<Character, Integer> characterMap;
+
+    // characters[i] = c. characterMap[c] = i.
+    private ArrayList<Character> characters;
+
+    // the current data set that we are on. For now, a data set is a file.
     private int currentDataSet;
+
+    // the next free integer to encode a character as
     private int charIdxNumber;
+
+    // for now, the total number of files given as training
     private int exampleLength;
 
     // exampleLength should be the maximum length of each file.
@@ -27,6 +39,7 @@ public class ABCIterator implements DataSetIterator {
         charIdxNumber = 0;
         this.exampleLength = exampleLength;
         characterMap = new HashMap<Character, Integer>();
+        characters = new ArrayList<Character>();
 
         // create a new data set for each File in the training example
         for (int i = 0; i < exampleDataSets.length; i++) {
@@ -46,11 +59,14 @@ public class ABCIterator implements DataSetIterator {
         long length = 0;
         String currentLine = null;
         while ((currentLine = bufferedReader.readLine()) != null) {
+            currentLine += '\n';
+
             length += currentLine.length();
             for (int idx = 0; idx < currentLine.length(); idx++) {
-                if (! characterMap.containsKey(currentLine.charAt(idx)))
+                if (! characterMap.containsKey(currentLine.charAt(idx))) {
                     characterMap.put(currentLine.charAt(idx), charIdxNumber++);
-
+                    characters.add(currentLine.charAt(idx));
+                }
                 exampleDataSets[currentDataSet].add(characterMap.get(
                         currentLine.charAt(idx)));
             }
@@ -88,6 +104,10 @@ public class ABCIterator implements DataSetIterator {
 
         currentDataSet += i;
         return new DataSet(inputs, labels);
+    }
+
+    public ArrayList<Character> getCharacterIndicies() {
+        return characters;
     }
 
     public int totalExamples() {
