@@ -21,7 +21,6 @@ import java.util.Scanner;
 
 public class App {
 
-    static long maxLength = 1024;
     static File[] songs;
    
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -33,7 +32,7 @@ public class App {
         findMaxFinalLength(directoryPath);
 
         // the length will never require a long to store it, for ABC files.
-        ABCIterator it = new ABCIterator(songs, (int) maxLength);
+        ABCIterator it = new ABCIterator(songs);
 
         int numOut = it.totalOutcomes();
         int lstmLayerSize = 200;
@@ -66,11 +65,13 @@ public class App {
                 network);
 
         for (int i = 0; i < 200; i++) {
+            if (! it.hasNext())
+                it.reset();
+
             System.out.println("Training epoch: " + i + ". ");
 
             DataSet ds = it.next();
             network.fit(ds);
-            it.reset();
 
             System.out.println("Sampled output:\n" + sampler.sampleCharacters("X:1\n", 50));
             System.out.println("------------------");
@@ -100,10 +101,5 @@ public class App {
             }
         };
         songs = dir.listFiles(getABCFiles);
-        maxLength = 0;
-        for(File song : songs)
-        {
-            maxLength = (song.length() > maxLength) ? song.length() : maxLength;
-        }
     }
 }
