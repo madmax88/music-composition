@@ -28,7 +28,7 @@
           </archive>
         </configuration>
         </plugin>
-      
+
       <plugin>
         <version>3.6.1</version>
         <groupId>org.apache.maven.plugins</groupId>
