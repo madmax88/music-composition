@@ -28,7 +28,7 @@ public class App {
 
         Scanner scanner = new Scanner(System.in);
         String directoryPath = scanner.nextLine();
-
+        
         findMaxFinalLength(directoryPath);
 
         // the length will never require a long to store it, for ABC files.
@@ -64,7 +64,7 @@ public class App {
         CharacterSampler sampler = new CharacterSampler(it.getCharacterSet(), it.getCharacterIndicies(),
                 network);
 
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < 400; i++) {
             if (! it.hasNext())
                 it.reset();
 

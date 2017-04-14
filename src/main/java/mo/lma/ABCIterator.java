@@ -35,7 +35,7 @@ public class ABCIterator implements DataSetIterator {
     private int exampleLength;
 
     // default batch size
-    public static final int DEFAULT_BATCH_SIZE = 22;
+    public static final int DEFAULT_BATCH_SIZE = 20;
 
     // exampleLength should be the maximum length of each file.
     // the remaining portion of files < the maximum length must be spaces.
