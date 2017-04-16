@@ -36,6 +36,8 @@ public class ABCIterator implements DataSetIterator {
 
     // default batch size
     public static final int DEFAULT_BATCH_SIZE = 20;
+    
+    private static final String allowedHeader = "|XTLMK";
 
     // exampleLength should be the maximum length of each file.
     // the remaining portion of files < the maximum length must be spaces.
@@ -97,6 +99,12 @@ public class ABCIterator implements DataSetIterator {
         while ((currentLine = bufferedReader.readLine()) != null) {
             currentLine += '\n';
 
+            if(currentLine.length() > 2 &&
+                    currentLine.charAt(1) == ':' &&
+                    allowedHeader.indexOf((int) currentLine.charAt(0)) == -1)
+                continue;
+            
+            
             length += currentLine.length();
             for (int idx = 0; idx < currentLine.length(); idx++) {
                 toReturn.add(characterMap.get(currentLine.charAt(idx)));
