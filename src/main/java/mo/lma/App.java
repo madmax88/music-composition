@@ -1,5 +1,6 @@
 package mo.lma;
 
+import mo.serialization.JsonSerializer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -9,7 +10,6 @@ import org.deeplearning4j.nn.conf.layers.GravesLSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -64,7 +64,9 @@ public class App {
         CharacterSampler sampler = new CharacterSampler(it.getCharacterSet(), it.getCharacterIndicies(),
                 network);
 
-        for (int i = 0; i < 400; i++) {
+        AppState appState = new AppState(network, it.getCharacterSet());
+
+        for (int i = 0; i < 1; i++) {
             if (! it.hasNext())
                 it.reset();
 
@@ -82,8 +84,7 @@ public class App {
         System.out.println("Enter location to save the model: ");
         String savePath = scanner.nextLine();
 
-        File location = new File(savePath);
-        ModelSerializer.writeModel(network, location, true);
+        new JsonSerializer().write(appState, new File(savePath));
     }
     
     /**
