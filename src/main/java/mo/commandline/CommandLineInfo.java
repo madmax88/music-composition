@@ -1,7 +1,5 @@
 package mo.commandline;
 
-import sun.tools.jar.CommandLine;
-
 import java.io.File;
 
 public class CommandLineInfo {
@@ -10,10 +8,14 @@ public class CommandLineInfo {
     private Mode mode;
     private File inputLocation, outputLocation;
 
-    public CommandLineInfo(Mode mode, File inputLocation, File outputLocation) {
+    // either the size of the network or the size to sample
+    private int size;
+
+    public CommandLineInfo(Mode mode, File inputLocation, File outputLocation, int size) {
         this.mode = mode;
         this.inputLocation = inputLocation;
         this.outputLocation = outputLocation;
+        this.size = size;
     }
 
     public Mode getMode() {
@@ -26,5 +28,9 @@ public class CommandLineInfo {
 
     public File getOutputLocation() {
         return outputLocation;
+    }
+
+    public int getSize() {
+        return size;
     }
 }

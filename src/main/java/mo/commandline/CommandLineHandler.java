@@ -33,9 +33,13 @@ public class CommandLineHandler {
         input.setRequired(true);
         options.addOption(input);
 
-        boolean isTraining = false;
-        boolean trainingOptionSpecified = false;
+        Option size = new Option("l", "size", true, "size of network or sample size");
+        size.setRequired(true);
+        options.addOption(size);
+
+        boolean isTraining = false, trainingOptionSpecified = false;
         File outputLocation = null, inputLocation = null;
+        int sizeArg = 0;
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
@@ -45,6 +49,14 @@ public class CommandLineHandler {
         } catch (ParseException e) {
             // if there is a parse error, print the problem and the usage and die.
             System.out.println(e.getMessage());
+            new HelpFormatter().printHelp("musgen", options);
+            System.exit(1);
+        }
+
+        try {
+            sizeArg = Integer.parseInt(cmd.getOptionValue("l"));
+        } catch (Exception e) {
+            System.out.println("Error: --size value not a valid number.");
             new HelpFormatter().printHelp("musgen", options);
             System.exit(1);
         }
@@ -119,7 +131,8 @@ public class CommandLineHandler {
 
         return new CommandLineInfo(isTraining ? CommandLineInfo.Mode.TRAIN : CommandLineInfo.Mode.SAMPLE,
                                    inputLocation,
-                                   outputLocation);
+                                   outputLocation,
+                                   sizeArg);
 
     }
 }

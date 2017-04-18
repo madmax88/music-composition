@@ -44,14 +44,31 @@ public class ABCIterator implements DataSetIterator {
     public ABCIterator(File[] locations) throws IOException {
         currentDataSet = 0;
         charIdxNumber = 0;
-        characterMap = new HashMap<Character, Integer>();
-        characters = new ArrayList<Character>();
+        characterMap = new HashMap<>();
+        characters = new ArrayList<>();
         dataSetSources = locations;
         exampleLength = 0;
 
         initVectorEncoders(dataSetSources);
 
         // make sure we reset our dataset
+        currentDataSet = 0;
+    }
+
+    public ABCIterator(File[] locations, HashMap<Character, Integer> characterMap) throws IOException {
+        this.characterMap = characterMap;
+        currentDataSet = 0;
+        characters = new ArrayList<>(characterMap.size());
+        dataSetSources = locations;
+        exampleLength = 0;
+
+        characterMap.forEach((Character k, Integer v) -> {
+            characters.add(v, k);
+        });
+
+        charIdxNumber = characterMap.size();
+
+        initVectorEncoders(locations);
         currentDataSet = 0;
     }
 

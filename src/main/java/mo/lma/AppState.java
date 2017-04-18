@@ -20,7 +20,6 @@ public class AppState
 {
 
     private MultiLayerNetwork network = null;
-    Type CharMap = new TypeToken<HashMap<Character, Integer>>(){}.getType();
     private HashMap<Character, Integer> characterMap = null;
 
     /**

@@ -3,7 +3,9 @@ package mo.serialization;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import it.unimi.dsi.fastutil.Hash;
 import mo.lma.AppState;
+import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.util.ModelSerializer;
 
 import java.io.*;
@@ -29,10 +31,28 @@ public class JsonSerializer implements Serializer {
             throw new IllegalArgumentException("Error: path must be a directory.");
         }
 
+        // we have to encode the characters themselves, because not all characters are valid JSON keys
+        HashMap<String, Integer> encodedMap = new HashMap<>();
+
+        // TODO:
+        // This is crap.
+        // We really ought to have an object that represents these character, i.e. a SerializableCharacter
+        // that provides the proper encoding/decoding procedures.
+        appState.getCharacterMap().forEach((Character key, Integer value) -> {
+            if (key.equals(' '))
+                encodedMap.put("SPACE", value);
+            else if (key.equals('\n'))
+                encodedMap.put("NEWLINE", value);
+            else if (key.equals('\t'))
+                encodedMap.put("TAB", value);
+            else
+                encodedMap.put(key.toString(), value);
+        });
+
         // cm is for character map
         try (PrintWriter writer = new PrintWriter(new File(path.getAbsolutePath(), "cm.json"))) {
             Gson gson = new Gson();
-            writer.print(gson.toJson(appState.getCharacterMap(), CharMap));
+            writer.print(gson.toJson(encodedMap));
             writer.close();
             ModelSerializer.writeModel(appState.getNetwork(), new File(path.getAbsolutePath(), "net.net").getAbsoluteFile(), true);
         } catch (FileNotFoundException e) {
@@ -48,7 +68,7 @@ public class JsonSerializer implements Serializer {
     public AppState read(File path) {
         Gson gson = new Gson();
         AppState appState = null;
-        HashMap<Character, Integer> characterMap = null;
+        HashMap<Character, Integer> characterMap = new HashMap<>();
 
         if (! path.isDirectory()) {
             throw new IllegalArgumentException("Error: path must be a directory.");
@@ -61,13 +81,31 @@ public class JsonSerializer implements Serializer {
         try {
             Scanner reader = new Scanner(new File(path, "cm.json"));
             StringBuilder string = new StringBuilder(1024);
-            String line = reader.nextLine();
-            for (;reader.hasNext(); line = reader.nextLine())
-            {
-                string.append(line + "\n");
+            String next = null;
+
+            while (reader.hasNext() && (next = reader.next()) != null) {
+                string.append(next);
             }
-            characterMap = gson.fromJson(string.toString(), CharMap);
-            ModelSerializer.restoreMultiLayerNetwork(new File(path, "net.net").getAbsoluteFile());
+
+            reader.close();
+
+            Type stringMap = new TypeToken<HashMap<String, Integer>>(){}.getType();
+            HashMap<String, Integer> encodedMap = gson.fromJson(string.toString(), stringMap);
+
+            encodedMap.forEach((String s, Integer v) -> {
+                if (s.equals("SPACE"))
+                    characterMap.put(' ', v);
+                else if (s.equals("TAB"))
+                    characterMap.put('\t', v);
+                else if (s.equals("NEWLINE"))
+                    characterMap.put('\n', v);
+                else
+                    characterMap.put(s.charAt(0), v);
+            });
+
+            MultiLayerNetwork network = ModelSerializer.restoreMultiLayerNetwork(new File(path, "net.net").getAbsoluteFile());
+
+            appState = new AppState(network, characterMap);
         } catch (FileNotFoundException ex) {
             System.err.println("Panicking: ");
             System.err.println(ex.getMessage());

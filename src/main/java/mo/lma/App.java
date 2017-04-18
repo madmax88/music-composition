@@ -1,5 +1,7 @@
 package mo.lma;
 
+import mo.commandline.CommandLineHandler;
+import mo.commandline.CommandLineInfo;
 import mo.serialization.JsonSerializer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.BackpropType;
@@ -17,26 +19,32 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class App {
 
-    static File[] songs;
+    private static File[] songs;
+    public static final int TIME_BACK_PROPAGATION_LENGTH = 50;
    
     public static void main(String[] args) throws IOException, InterruptedException {
-        System.out.print("Enter a path to train from: ");
+        CommandLineInfo commandLineInfo = CommandLineHandler.handleCommandLine(args);
 
-        Scanner scanner = new Scanner(System.in);
-        String directoryPath = scanner.nextLine();
-        
-        findMaxFinalLength(directoryPath);
+        if (commandLineInfo.getMode().equals(CommandLineInfo.Mode.SAMPLE)) {
+            sampleMain(commandLineInfo);
+        } else {
+            trainingMain(commandLineInfo);
+        }
+    }
+
+    private static void trainingMain(CommandLineInfo commandLineInfo) throws IOException {
+        findMaxFinalLength(commandLineInfo.getInputLocation());
 
         // the length will never require a long to store it, for ABC files.
         ABCIterator it = new ABCIterator(songs);
 
         int numOut = it.totalOutcomes();
-        int lstmLayerSize = 200;
-        int tbpttLength = 50;
+        int lstmLayerSize = commandLineInfo.getSize();
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
@@ -54,7 +62,8 @@ public class App {
                         .activation(Activation.TANH).build())
                 .layer(2, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
                         .nIn(lstmLayerSize).nOut(numOut).build())
-                .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
+                .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(TIME_BACK_PROPAGATION_LENGTH)
+                .tBPTTBackwardLength(TIME_BACK_PROPAGATION_LENGTH)
                 .pretrain(false).backprop(true)
                 .build();
 
@@ -79,21 +88,37 @@ public class App {
             System.out.println("------------------");
         }
 
-        System.out.println(sampler.sampleCharacters("X:1\n", 50));
+        new JsonSerializer().write(appState, commandLineInfo.getOutputLocation());
+    }
 
-        System.out.println("Enter location to save the model: ");
-        String savePath = scanner.nextLine();
+    private static void sampleMain(CommandLineInfo commandLineInfo) {
+        int sampleSize = commandLineInfo.getSize();
+        AppState appState = null;
 
-        new JsonSerializer().write(appState, new File(savePath));
+        try {
+            appState = new JsonSerializer().read(commandLineInfo.getInputLocation());
+        } catch (IllegalArgumentException a) {
+            System.err.println("The system cannot find the path specified. Exiting.");
+            System.exit(1);
+        }
+
+        Character[] charArr = new Character[appState.getCharacterMap().size()];
+        appState.getCharacterMap().forEach((Character k, Integer v) -> charArr[v] = k);
+
+        MultiLayerNetwork network = appState.getNetwork();
+        CharacterSampler sampler = new CharacterSampler(appState.getCharacterMap(),
+                                                        new ArrayList<Character>(Arrays.asList(charArr)),
+                                                        network);
+
+        System.out.println(sampler.sampleCharacters("T:", sampleSize));
     }
     
     /**
      * Finds the maximum input file length and stores it in maxLength.
      * @param directory 
      */
-    private static void findMaxFinalLength(String directory)
+    private static void findMaxFinalLength(File directory)
     {
-        File dir = new File(directory);
         FileFilter getABCFiles = new FileFilter() {
 
             public boolean accept(File pathname)
@@ -101,6 +126,6 @@ public class App {
                 return pathname.getName().endsWith(".abc");
             }
         };
-        songs = dir.listFiles(getABCFiles);
+        songs = directory.listFiles(getABCFiles);
     }
 }
