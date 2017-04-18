@@ -3,12 +3,14 @@ package mo.serialization;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import it.unimi.dsi.fastutil.Hash;
 import mo.lma.AppState;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.util.ModelSerializer;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -92,6 +94,9 @@ public class JsonSerializer implements Serializer {
             Type stringMap = new TypeToken<HashMap<String, Integer>>(){}.getType();
             HashMap<String, Integer> encodedMap = gson.fromJson(string.toString(), stringMap);
 
+            // TODO
+            // Again, check out the comment above.
+            // I absolutely hate this way of doing this. 
             encodedMap.forEach((String s, Integer v) -> {
                 if (s.equals("SPACE"))
                     characterMap.put(' ', v);
