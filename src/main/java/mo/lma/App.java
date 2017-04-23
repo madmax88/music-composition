@@ -25,7 +25,7 @@ import java.util.Arrays;
 public class App {
 
     private static File[] songs;
-    public static final int TIME_BACK_PROPAGATION_LENGTH = 50;
+    public static final int TIME_BACK_PROPAGATION_LENGTH = 200;
    
     public static void main(String[] args) throws IOException, InterruptedException {
         CommandLineInfo commandLineInfo = CommandLineHandler.handleCommandLine(args);
@@ -38,7 +38,7 @@ public class App {
     }
 
     private static void trainingMain(CommandLineInfo commandLineInfo) throws IOException {
-        findMaxFinalLength(commandLineInfo.getInputLocation());
+        getFiles(commandLineInfo.getInputLocation());
 
         // the length will never require a long to store it, for ABC files.
         ABCIterator it = new ABCIterator(songs);
@@ -75,7 +75,7 @@ public class App {
 
         AppState appState = new AppState(network, it.getCharacterSet());
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 1000; i++) {
             if (! it.hasNext())
                 it.reset();
 
@@ -84,7 +84,7 @@ public class App {
             DataSet ds = it.next();
             network.fit(ds);
 
-            System.out.println("Sampled output:\n" + sampler.sampleCharacters("X:1\n", 50));
+            System.out.println("Sampled output:\n" + sampler.sampleCharacters("Gdg gBG|", 200));
             System.out.println("------------------");
         }
 
@@ -110,14 +110,14 @@ public class App {
                                                         new ArrayList<Character>(Arrays.asList(charArr)),
                                                         network);
 
-        System.out.println(sampler.sampleCharacters("T:", sampleSize));
+        System.out.println(sampler.sampleCharacters("G2d d2g |", sampleSize));
     }
     
     /**
      * Finds the maximum input file length and stores it in maxLength.
      * @param directory 
      */
-    private static void findMaxFinalLength(File directory)
+    private static void getFiles(File directory)
     {
         FileFilter getABCFiles = new FileFilter() {
 

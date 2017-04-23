@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1492180016649
+Bundle-ManifestVersion: 2
+Bundle-Name: music-composition
+Bundle-SymbolicName: music-composition
+Bundle-Version: 1.0.0.201704141426
+Created-By: 1.8.0_121 (Oracle Corporation)
+Import-Package: org.apache.commons.cli;version="[1.4,2)",org.deeplearn
+ ing4j.nn.api,org.deeplearning4j.nn.conf,org.deeplearning4j.nn.conf.la
+ yers,org.deeplearning4j.nn.multilayer,org.deeplearning4j.nn.weights,o
+ rg.deeplearning4j.util,org.nd4j.linalg.activations,org.nd4j.linalg.ap
+ i.ndarray,org.nd4j.linalg.dataset,org.nd4j.linalg.dataset.api,org.nd4
+ j.linalg.dataset.api.iterator,org.nd4j.linalg.factory,org.nd4j.linalg
+ .lossfunctions
+Private-Package: mo.commandline,mo.lma,mo.serialization
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
+Tool: Bnd-3.1.0.201512181341
